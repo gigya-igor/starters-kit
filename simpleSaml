@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Simple RaaS + SAML Example</title>
+	<!-- 
+	Including the Gigya JS SDK
+	Replace the API key at the end of the source link with the API key of the site you 
+	created in your Administrative Console 
+	-->
+	<script type="text/javascript" src="https://cdns.gigya.com/js/gigya.js?apikey=[Your Gigya SAML SP API Key]"></script>
+</head>
+<body style="text-align: center">
+	<br />
+	<br />
+	<br />
+	<!-- 
+	Anchor for Login. On click this will call gigya.accounts.showScreenSet endpoint.
+	In this case we are calling the "Default-RegistrationLogin" Screen
+	-->
+	<a href="#" onclick="gigya.accounts.showScreenSet({screenSet:'Default-RegistrationLogin'});">Login</a>
+	<!--
+	Anchor for Registration. On click this will call the gigya.accounts.showScreenSet endpoint.
+	In this case we are calling the "Default-RegistrationLogin" screen, but this time we are 'starting'
+	with the 'gigya-register-screen'. In the previous call we did not include a 'startScreen' param,
+	therefore, it started with the default 'login' screen.
+	-->
+	<a href="#" onclick="gigya.accounts.showScreenSet({screenSet:'Default-RegistrationLogin', startScreen:'gigya-register-screen'});">Register</a>
+	<!--
+	Anchor for Editing a User's profile. On click this will call the gigya.accounts.showScreenSet endpoing.
+	In this case we are calling the "Default-ProfileUpdate" screen.
+	-->
+	<a href="#" onclick="gigya.accounts.showScreenSet({screenSet:'Default-ProfileUpdate'});">Edit</a>
+	<!--
+	Anchor for logging out. On click this will call the gigya.accounts.logout endpoint.
+	-->
+	<a href="#" onclick="gigya.accounts.logout();">Logout</a>
+	<!--
+	Anchor for SAML Login. On click this will call the gigya.socialize.login
+	-->
+	<a href="#" onclick="gigya.socialize.login({provider: 'saml-[Your SAML IdP Name]'});">SAML Login</a>
+
+	<script type="text/javascript">
+	/*
+	Adding Gigya event handlers for the login and logout events.
+	The functions associated with these events can be used to notify other APIs and your backend
+	when a user has logged in / out. They can also be used in order to personalize the client-side
+	application with the user's details.
+	*/
+	gigya.accounts.addEventHandlers({
+    onLogin: loginEventHandler, // Upon login, call the 'loginEventHandler' function.
+    onLogout: logoutEventHandler // Upon logout, call the 'logoutEventHanlder' function.
+  });
+
+  // Login Event Handler function
+  function loginEventHandler(evtObj) {
+		console.log(evtObj); // Check your console to see what the event object looks like.
+		// The event object contains the user's profile. Below I am alerting the user's first name and last name
+		// Which I found in the evtObj JSON object.
+		alert("Welcome " + evtObj.profile.firstName + " " + evtObj.profile.lastName);
+		/*
+		Any other post login processing should be done here.
+		For Example, making a call to your backend application with the user information, or 
+		personalizing the application based on the user's profile.
+		*/
+	};
+	function logoutEventHandler(evtObj) {
+		console.log(evtObj);
+		alert("Goodbye!");
+	};
+	</script>
+</body>
+</html>
