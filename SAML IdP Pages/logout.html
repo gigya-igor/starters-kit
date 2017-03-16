@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>SAML Logout Page</title>
+	<script type="text/javascript" src="http://cdn.gigya.com/js/gigya.js?apiKey=[Your Gigya IdP Site API Key]"></script>
+</head>
+<body>
+	<h1>Logout from <span id="spName"></span></h1>
+    <div id="container">please wait...</div>
+<script>
+    function onLogout(response) {  
+        if ( response.errorCode == 0 ) {               
+            document.getElementById("container").innerHTML = "You are now logged out";
+            // Do something with the ${spName} variable (optional)
+        }
+        else {
+            alert('Error :' + response.errorMessage);
+        }
+    }
+    document.getElementById('spName').innerHTML = location.search.split("=")[1];
+    gigya.accounts.logout({callback:onLogout});
+</script>
+<div id="responseDiv">
+    &nbsp;
+</div>
+</body>
+</html>

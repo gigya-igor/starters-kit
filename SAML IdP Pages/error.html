@@ -1,0 +1,18 @@
+<html>
+<head>
+<title>SAML Error Page</title>
+</head>
+<body>
+<div class="responseDiv" id="responseDiv" style="width: 50%; height: 50%; overflow: auto; text-align: left; margin: 0px auto;">
+</div>
+<script>
+    thisUri = window.location.href;
+    decodedUri = decodeURIComponent(thisUri);
+    decodedUri = decodedUri.replace("http://<YourSite.com/YourErrorPage.php>?", "");
+    decodedUri = decodedUri.replace(/,/g, ",<br />&nbsp;&nbsp;&nbsp;&nbsp;");
+    decodedUri = decodedUri.replace(/{/g, "{<br />&nbsp;&nbsp;&nbsp;&nbsp;");
+    decodedUri = decodedUri.replace(/}/g, "<br />}");
+    document.getElementById('responseDiv').innerHTML = decodedUri;
+</script>
+</body>
+</html>

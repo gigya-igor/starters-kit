@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>SAML Login Page</title>
+	<script type="text/javascript" src="http://cdn.gigya.com/js/gigya.js?apiKey=[Your Gigya IdP Site API Key]"></script>
+</head>
+<body>
+	<div id="container"></div>
+  <script>
+    function loginEventHandler() {
+      gigya.fidm.saml.continueSSO({ spName: '[Your SP NAME]' });
+    }
+    gigya.accounts.addEventHandlers({
+      onLogin: loginEventHandler
+    });
+    gigya.accounts.showScreenSet({
+      screenSet: 'Default-RegistrationLogin',
+      containerID: "container",
+      sessionExpiration: '1440'
+    });
+  </script>
+</body>
+</html>
