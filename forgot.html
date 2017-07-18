@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Forgot Password</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <script id="gigyaSDK" type="text/javascript" lang="javascript" src="http://cdn.gigya.com/JS/gigya.js?apikey=[YOUR API KEY HERE]"></script>
+    <script type="text/javascript" lang="javascript" src="/js/jQuery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <style type="text/css">
+    	#loginIdError {
+    		color: red;
+    	}
+    </style>
+  </head>
+  <body>
+  	<div class="container-fluid">
+  		<div class="row">
+  			<div class="col-md-6 col-md-offset-3">
+  				<h3>City of NY: Reset Password Service</h3>
+  				<form id="loginIdForm">
+					  <div class="form-group">
+					    <label for="loginID">Email address</label>
+					    <input type="input" class="form-control" id="loginID" placeholder="Email / Username" />
+					    <span id="loginIdError"></span>
+					  </div>
+					  <button type="submit" class="btn btn-primary">Submit</button>
+					</form>
+					<div id="forgot"></div>
+					<div id="response"></div>
+  			</div>
+  		</div>
+  	</div>
+		<script type="text/javascript">
+			$(document).ready(function () {
+				var secretQuestion = "";
+				var $secretAnswer;
+				var $newPassword;
+				var loginID = "";
+				function populateSecurityQuestion () {
+	        $(".security-question > input").val(secretQuestion);
+	        $secretAnswer = $(".securityAnswer > .gigya-input-text");
+	        $newPassword = $(".newPassword > input");
+	      };
+	      function verifyAnswer (evt) {
+	      	var secretAnswer = $secretAnswer[1].value;
+	      	var newPassword = $newPassword[1].value;
+	      	var resetParams = {
+	      		loginID: loginID,
+	      		newPassword: newPassword,
+	      		secretAnswer: secretAnswer
+	      	};
+	      	console.log(resetParams);
+	      	gigya.accounts.resetPassword($.extend(resetParams, {
+	      		callback: function (res) {
+	      			if (res.errorCode === 0) {
+	      				$("#forgot").hide();
+	      				$("#response").html("Password has been reset. Please login <a href='/login'>here</a>.");
+	      			} else {
+	      				$('.gigya-error-display-active[data-bound-to="gigya-reset-password-form"] > div').html("Invalid Response.");
+	      			}
+	      		}
+	      	}));
+	      };
+	      function securityQuestionFlow(loginID) {
+	      	$.getScript("http://cdn.gigya.com/JS/gigya.js?apikey=[YOUR API KEY WITH Q/A POLICY HERE]", function (data) {
+						$("#loginIdForm").hide();
+						var resetParams = {
+							loginID: loginID
+						};
+						gigya.accounts.resetPassword($.extend(resetParams, {
+							callback: function (res) {
+								if (res.errorCode === 400050 && res.hasOwnProperty('secretQuestion')) {
+									secretQuestion = res.secretQuestion;
+									gigya.accounts.showScreenSet({
+		                containerID: 'forgot',
+				            screenSet: 'Default7_2-RegistrationLogin',
+				            startScreen: 'verify-security-question',
+				            onAfterScreenLoad: populateSecurityQuestion,
+				            onBeforeSubmit: verifyAnswer
+		              });
+								} else {
+									$("#response").html("Please click <a href='/nycQAservice?loginID=" + loginID + "'>here</a> to continue to City of New York's Security Question and Answer service.");
+								}
+							}
+						}));
+					});
+	      };
+				$("#loginIdForm").submit(function (e) {
+					e.preventDefault();
+					$("#loginIdError").html("");
+					loginID = $("#loginID").val();
+					var emailReg = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+					var resetParams = {
+						loginID: loginID
+					};
+					gigya.accounts.resetPassword($.extend(resetParams, {
+						callback: function (res) {
+							if (!emailReg.test(loginID) && res.errorCode === 400028) {
+								$("#gigyaSDK").remove();
+								gigya = undefined;
+								securityQuestionFlow(loginID);
+							} else {
+								$("#loginIdForm").hide();
+								$("#response").html("Password email has been sent. Please login <a href='/login'>here</a>.");
+							}
+						}
+					}));/*
+					if (emailReg.test(loginID)) {
+						sendResetEmail(loginID);
+					} else {
+						securityQuestionFlow(loginID);
+					};*/
+				});
+			});
+		</script>
+  </body>
+ </html>
