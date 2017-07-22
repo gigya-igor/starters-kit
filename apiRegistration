@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Registration via API</title>
+	<script type="text/javascript" lang="javascript" src="http://cdn.gigya.com/JS/gigya.js?apikey=[YOUR API KEY HERE]"></script>
+	<script type="text/javascript">
+		// Global Registration Token variable
+		// Will be used by functions below.
+		var regToken = "";
+		// register calls the following function:
+		function finalizeRegistration(res) {
+			// 'res' contains the response from the register call
+			if (res.errorCode !== 0) {
+				// check if the register API call responded with an error
+				console.log('Could not register the user');
+				console.log('Error Code: ', res.errorCode);
+				console.log('Error Message: ', res.errorMessage);
+				return;
+			};
+			gigya.accounts.finalizeRegistration({
+				regToken: regToken
+			});
+		};
+		// initRegistration calls the following function:
+		function registerUser(res) {
+			// 'res' contains the response from the initRegistration call
+			if (res.errorCode !== 0) {
+				// check if the initRegistration API call responded with an error
+				console.log('Could not initiate the registration');
+				console.log('Error Code: ', res.errorCode);
+				console.log('Error Message: ', res.errorMessage);
+				return;
+			};
+			// We want to save the regToken that initRegistration responded with
+			regToken = res.regToken;
+			// Retrieve the email / password that the user filled out in the form
+			var email = document.getElementById('email').value;
+			var password = document.getElementById('password').value;
+
+			// continue with the registration process
+			// we are passing the email / password as well as the regToken from the initRegistration
+			// OPTIONAL: you can pass 'finalizeRegistration': true with this function to complete
+			// the registration and stop here
+			gigya.accounts.register({
+				regToken: regToken,
+				email: email,
+				password: password,
+				callback: finalizeRegistration
+			});
+		};
+
+		function initRegistration() {
+			// Initiate registration via Gigya API
+			// Call below will make the first API call of the 3 needed to register a user
+			// Following the initRegistration call we will use the 'callback' parameter to execute
+			// the next function
+			gigya.accounts.initRegistration({
+				callback: registerUser
+			});
+
+		};
+	</script>
+</head>
+<body>
+
+<form id="registrationForm">
+	<label for="email">Email</label><br />
+	<input type="email" id="email" placeholder="Email" />
+	<br/>
+	<label for="password">Password</label><br />
+	<input type="password" id="password" placeholder="Password" /><br/>
+	<button type="button" onclick="initRegistration()">Register</button>
+</form>
+
+</body>
+</html>
