@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Registration via API</title>
+	<script type="text/javascript" lang="javascript" src="http://cdn.gigya.com/JS/gigya.js?apikey=[YOUR API KEY HERE]"></script>
+	<script type="text/javascript">
+		// Global Registration Token variable
+		// Will be used by functions below.
+		var regToken = "";
+		// register calls the following function:
+		function finalizeRegistration(res) {
+			// 'res' contains the response from the register call
+			if (res.errorCode !== 0) {
+				// check if the register API call responded with an error
+				console.log('Could not register the user');
+				console.log('Error Code: ', res.errorCode);
+				console.log('Error Message: ', res.errorMessage);
+				return;
+			};
+			gigya.accounts.finalizeRegistration({
+				regToken: regToken
+			});
+		};
+		// initRegistration calls the following function:
+		function registerUser(res) {
+			// 'res' contains the response from the initRegistration call
+			if (res.errorCode !== 0) {
+				// check if the initRegistration API call responded with an error
+				console.log('Could not initiate the registration');
+				console.log('Error Code: ', res.errorCode);
+				console.log('Error Message: ', res.errorMessage);
+				return;
+			};
+			// We want to save the regToken that initRegistration responded with
+			regToken = res.regToken;
+			// Retrieve the email / password that the user filled out in the form
+			var email = document.getElementById('email').value;
+			var password = document.getElementById('password').value;
+
+			// continue with the registration process
+			// we are passing the email / password as well as the regToken from the initRegistration
+			// OPTIONAL: you can pass 'finalizeRegistration': true with this function to complete
+			// the registration and stop here
+			gigya.accounts.register({
+				regToken: regToken,
+				email: email,
+				password: password,
+				callback: finalizeRegistration
+			});
+		};
+
+		function initRegistration() {
+			// Initiate registration via Gigya API
+			// Call below will make the first API call of the 3 needed to register a user
+			// Following the initRegistration call we will use the 'callback' parameter to execute
+			// the next function
+			gigya.accounts.initRegistration({
+				callback: registerUser
+			});
+
+		};
+		function firstNameSet(res) {
+			// 'res' contains the response from the setAccountInfo call
+			if (res.errorCode !== 0) {
+				// check if the setAccountInfo API call responded with an error
+				console.log('Could not set the user\'s first name');
+				console.log('Error Code: ', res.errorCode);
+				console.log('Error Message: ', res.errorMessage);
+				return;
+			};
+			alert('User\'s First Name Set!');
+		};
+		// Function to set the user's first name
+		// please keep in mind the user must already be logged in. This example walks through registration first
+		// because once you register, a cookie will automatically be set on your browser which Gigya's JS SDK uses
+		// to ensure you are logged in
+		function setFirstName() {
+			var firstName = document.getElementById('firstName').value;
+
+			gigya.accounts.setAccountInfo({
+				profile: {
+					firstName: firstName
+				},
+				callback: firstNameSet
+			});
+		};
+		function userInformation(res) {
+			// 'res' contains the response from the getAccountInfo call
+			// In this case the response will be the user's profile information in a JSON object
+			if (res.errorCode !== 0) {
+				// check if the getAccountInfo API call responded with an error
+				console.log('Could not get the user\'s profile information');
+				console.log('Error Code: ', res.errorCode);
+				console.log('Error Message: ', res.errorMessage);
+				return;
+			} else {
+				alert('Welcome ' + res.profile.firstName + '!');
+			};
+		};
+		// Function to get the user's account information
+		// Please keep in mind the user must already be logged in. This example walks through registration first
+		// because once you register, a cookie will automatically be set on your browser which Gigya's JS SDK uses
+		// to ensure you are logged in
+		function getAccountInfo() {
+			gigya.accounts.getAccountInfo({
+				callback: userInformation
+			});
+		};
+	</script>
+</head>
+<body>
+
+<h2>Registration</h2>
+<p>Register first so Gigya can set a cookie and we make the other API calls</p>
+<form id="registrationForm">
+	<label for="email">Email</label><br />
+	<input type="email" id="email" placeholder="Email" />
+	<br/>
+	<label for="password">Password</label><br />
+	<input type="password" id="password" placeholder="Password" /><br />
+	<button type="button" onclick="initRegistration()">Register</button>
+</form>
+
+<h2>Setting Account Information</h2>
+<p>Fill out the first name field and hit "Set First Name" to set the current user's first name attribute</p>
+<form id="updateAccount">
+	<label for="firstName">First Name</label><br />
+	<input type="text" id="firstName" placeholder="firstName"><br />
+	<button type="button" onclick="setFirstName()">Set First Name</button>
+</form>
+
+<h2>Getting Account Information</h2>
+<p>This will retrieve the account information and alert you with the user's first name</p>
+<button type="button" onclick="getAccountInfo()">Get Account Info</button>
+
+</body>
+</html>
