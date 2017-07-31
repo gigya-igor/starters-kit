@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Test</title>
+	<!-- 
+		Author: Igor Krougovoi
+		Date: July 31, 2017
+		Description:
+		Sample on how to populate a field in a Gigya screen set
+		Specifically: ask the user to fill out a screen with just an email address, then take that email
+		address and populate the gigya-login-screen with the email from the first screen.
+	-->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script type="text/javascript" src="https://cdns.gigya.com/js/gigya.js?apikey=[YOUR API KEY HERE]"></script>
+</head>
+<body>
+	<div id="gigyaContainer">
+	</div>
+
+	<script type="text/javascript">
+		$(document).ready(function () {
+			var email = "";
+
+			function populateEmail (evt) {
+				// Since this "populateEmail" function is fired everytime a screen loads we have to 
+				// ensure that we only try to populate the email when the current screen is the login screen:
+				if (evt.currentScreen == 'gigya-login-screen') {
+					// If the current screen is the login screen, populate the email input:
+					$('.emailAddress > .gigya-input-text').val(email);
+					// I added "emailAddress" as a "custom class" to the input box in the UI Builder.
+				};
+			};
+			function retrieveEmail (evt) {
+				// Do some server-side logic to find the user and see if they are an IDP user, or a "native" user.
+				// NOTE: this server-side logic must be done synchronously, otherwise Gigya will continue to the next
+				// screen without waiting for a response from your function.
+				// If they are a native user, continue below:
+				// The "evt" object contains the form data of what Gigya is about to submit
+				email = evt.formData['profile.email'];
+				// Switch from email only field to login screen:
+				gigya.accounts.switchScreen({
+					screenSet: 'Default2-RegistrationLogin',
+					screen: 'gigya-login-screen',
+					containerID: 'gigyaContainer'
+				});
+				// Return false for the "onBeforeSubmit" so that Gigya doesn't automatically make the API call
+				// to actually try to edit someone's profile (since this is a "edit profile" behaviour screen)
+				return false;
+			};
+			// Load the Gigya screen set which only asks for the email address:
+			// NOTE: the behaviour for my sample screen is "Edit Profile"
+			// and it contains an input box which is tied to "profile.email" in the "Mapped Fields".
+			// onBeforeSubmit will catch the email address that they input and call a function
+			// onAfterScreenLoad will fire everytime a new screen is loaded
+			gigya.accounts.showScreenSet({
+				screenSet: 'Default2-RegistrationLogin',
+				startScreen: 'gigya-retrieve-email',
+				containerID: 'gigyaContainer',
+				onBeforeSubmit: retrieveEmail,
+				onAfterScreenLoad: populateEmail
+			});
+		});
+	</script>
+
+</body>
+</html>
