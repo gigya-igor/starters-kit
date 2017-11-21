@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>EPM Demo Screen</title>
+	<script type="text/javascript" lang="javascript" src="http://cdn.gigya.com/JS/gigya.js?apikey=[YOUR API KEY HERE]"></script>
+</head>
+<body>
+	<div class="container-fluid content">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="col-md-8">
+					<div id="screenset">
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+		$(document).ready(function($) {
+			// On the '/subscription' page:
+			gigya.accounts.showScreenSet({
+				screenSet: 'EPM-ProfileUpdate',
+				startScreen: 'subscription-preferences', // ID of the screen
+				containerID: 'screenset' // ID of Element where you want the screen to load
+			});
+		});
+	</script>
+</body>
+</html>
+
