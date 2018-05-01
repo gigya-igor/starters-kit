@@ -1,5 +1,5 @@
 /* 
-	Invite additional users using server-side API calls to the Gigya platforms
+	Invite additional users using server-side API calls to the Gigya platform
 	This example assumes that a client-side form has sent a POST request with user information of the user we wish to create / invite.
 	At a high level:
 	 1. Parse the client-side submitted form data for the user to be invited
